@@ -1,21 +1,20 @@
 const core = require('@actions/core');
-const wait = require('./wait');
+const readenv = require('./read_env');
+try {
+  const dotenvFile = core.getInput('path');
+  const variables = readenv(dotenvFile);
 
-
-// most @actions toolkit packages have async methods
-async function run() {
-  try {
-    const ms = core.getInput('milliseconds');
-    core.info(`Waiting ${ms} milliseconds ...`);
-
-    core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    await wait(parseInt(ms));
-    core.info((new Date()).toTimeString());
-
-    core.setOutput('time', new Date().toTimeString());
-  } catch (error) {
-    core.setFailed(error.message);
+/*  for (const key in variables) {
+    const value = variables[key];
+    core.setOutput(key, value);
+	
   }
+ */ 
+  
+  console.log(`loaded ${Object.keys(variables).length} values into the environment`); 
+  core.debug(variables);
+  core.setOutput('env', JSON.stringify(variables));
+  
+} catch (error) {
+  core.setFailed(error.message);
 }
-
-run();
